@@ -1,1 +1,1 @@
-# WorkingWithCopula
+# ModelingWithCopula
