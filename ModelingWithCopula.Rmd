@@ -1,0 +1,104 @@
+---
+title: "ModelingWithCopula"
+author: "Duc-Anh Nguyen"
+date: "2025-02-03"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## First case study:
+Goal: to analyse the rainfall in Germany in summer
+For that we model the bivariate distribution of summed precipitation over a whole summer in kg/m^2 at 2 measuring stations pr1,pr2. 
+
+Therefore , we describe a bivariate distribution function F<sub>12</sub>(x<sub>pr1</sub>, x<sub>pr2</sub>) by a gumbel copula C<sub>12</sub> with parameter θ = 5. In the case of both stations, the marginal distribution of precipitation is modeled by a Pareto distribution
+```{r}
+library(ggplot2)
+# Load the dataset
+rain <- read.csv("precipitation_germany.csv")
+rain |> head()
+rain |> dim()
+```
+We will now try to estimate F<sub>12</sub> using a Gumbel copula. We will carry these steps:
+ • Transform the dataset using the empirical cumulative density function.
+ • Fit a copula model to the transformed data, a one-parametric one
+ • Identify the most suitable copula family using the AIC criterion.
+
+```{r}
+
+# Load necessary libraries
+#install.packages("VineCopula")
+library(VineCopula)
+# install.packages("rvinecopulib")
+library(rvinecopulib) 
+# Transform data to pseudo-observations
+u_rainfall <- pseudo_obs(rain)
+u_rainfall
+
+# Fit copula model and select the best family by AIC
+
+copula_rainfall = bicop(data = u_rainfall, family_set = "onepar", selcrit = "aic")
+
+# Summarize the fitted copula
+summary(copula_rainfall)
+```
+Interpretation: 
++ pseudo_obs estimates the empirical cumulative density (ECD) to transform the data on the 2D Uniform Hyper-cube 
+
++ bicop() estimates the parameters of all single parametric copula families and pics the most suitable family by AIC
+
++ the output describes a bivariate Joe copula with a 90-degree rotation, fitted to a dataset of 1000 continuous observations. The 90-degree rotation implies that the copula is modeling lower tail dependence rather than the upper tail dependence typically associated with the Joe copula.
+
++ criterion summary shows that the most suitable copula is a non-rotated gumbel copula where θ = 1.03,  suggesting weak dependence between the two variables.
+
+
+
+## Second case study:
+
+```{r}
+
+library(dplyr)
+load("muc.Rdata")
+head(muc3)
+skimr::skim(muc3)
+
+# restrict to stunde = 20, to a few specific numeric covariates and remove NAs
+muc20 <- muc3 %>%
+  filter(stunde == 20) %>%
+  select(PM10_luis, PM10_Loth, PM10_Prin, PM10_Stach, NO_Loth, NO2_Loth) %>%
+  na.omit()
+
+skimr::skim(muc20)
+
+
+# visualising data with scatter plot matrix
+pairs(muc20, pch = ".", gap = 0)
+
+```
+
+
+```{r}
+
+
+```
+
+
+```{r}
+
+
+```
+
+
+```{r}
+
+
+```
+
+
+```{r}
+
+
+```
